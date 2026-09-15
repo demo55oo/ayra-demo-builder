@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ayra · Demo agent generator</title>
+  <meta name="robots" content="noindex" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Fraunces"', "Georgia", "serif"],
+            sans: ['"Schibsted Grotesk"', "Segoe UI", "sans-serif"]
+          },
+          colors: {
+            ink: "#0a2443",
+            paper: "#f4efe4",
+            gold: "#ffb706"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,680;1,9..144,500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-paper text-ink font-sans min-h-screen">
+  <div class="fixed inset-0 pointer-events-none opacity-[0.14] mix-blend-multiply" style="background-image:url('data:image/svg+xml,%3Csvg viewBox=%270 0 200 200%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.8%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E')"></div>
+
+  <div class="relative mx-auto w-[min(1140px,calc(100%-40px))]">
+    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-6 pb-2">
+      <div class="flex items-center gap-3 text-xs tracking-[0.08em] uppercase text-stone-500">
+        <span class="grid h-9 w-9 place-items-center rounded-[10px] bg-ink font-display italic text-lg font-semibold text-gold">A</span>
+        Ayra · Demo generator
+      </div>
+      <div class="rounded-full border border-ink/10 bg-white/50 px-3 py-1.5 text-xs tracking-[0.08em] uppercase">Standalone page</div>
+    </header>
+
+    <section class="relative overflow-hidden rounded-[28px] text-[#f6f0e4] px-6 py-12 sm:px-11 sm:py-14 mt-4 mb-10" style="background:linear-gradient(150deg,#0a2443,#3a2a00 62%,#04182c)">
+      <div class="absolute inset-0 opacity-40" style="background-image:linear-gradient(90deg,transparent 0,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(transparent 0,rgba(255,255,255,.05) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(#000,transparent 78%)"></div>
+      <p class="relative z-10 text-gold text-xs font-bold tracking-[0.16em] uppercase">Paste a site. Get a voice agent.</p>
+      <h1 class="relative z-10 font-display font-semibold tracking-tight leading-[0.96] text-[clamp(36px,6vw,68px)] mt-3 mb-4">Demo agent<br />generator</h1>
+      <p class="relative z-10 max-w-xl text-lg text-[#f6f0e4]/80">We scrape the business with Jina, write a Maria-style inbound prompt, and create a no-tools demo on Vapi. Same house voice. New facts. No booking.</p>
+      <nav class="relative z-10 mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+        <a class="border-b border-gold/50 hover:border-gold" href="#make">Make one</a>
+        <a class="border-b border-gold/50 hover:border-gold" href="#how">How it works</a>
+      </nav>
+    </section>
+
+    <section id="make" class="pb-10">
+      <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">Make one</p>
+      <h2 class="font-display tracking-tight text-[clamp(26px,4vw,40px)] mt-1 mb-4">Website in. Agent out.</h2>
+      <div class="grid gap-3.5 md:grid-cols-2">
+        <form id="builder-form" class="rounded-[20px] border border-ink/10 bg-white/80 p-5 grid gap-4">
+          <label class="grid gap-1.5">
+            <span class="text-xs font-bold tracking-[0.08em] uppercase text-stone-500">Website URL</span>
+            <input id="website-url" name="websiteUrl" type="url" inputmode="url" autocomplete="url" required placeholder="https://thestudio.com" class="w-full rounded-2xl border border-ink/10 bg-white px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-gold" />
+          </label>
+          <label class="grid gap-1.5">
+            <span class="text-xs font-bold tracking-[0.08em] uppercase text-stone-500">Agent name <em class="not-italic font-medium normal-case tracking-normal">optional</em></span>
+            <input id="agent-name" name="agentName" type="text" autocomplete="off" placeholder="Maya — leave blank and we pick one" class="w-full rounded-2xl border border-ink/10 bg-white px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-gold" />
+          </label>
+          <button id="submit-btn" type="submit" class="rounded-full bg-gold px-4 py-3 font-bold text-[#3a2a00] disabled:cursor-not-allowed disabled:opacity-45">
+            <span id="btn-label">Create the demo agent</span>
+          </button>
+          <p id="status" class="text-sm text-stone-500">Scrape, write the prompt, create on Vapi. Usually under a minute.</p>
+        </form>
+
+        <article id="result" class="hidden rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">Ready</p>
+          <h3 id="result-name" class="text-xl font-semibold mt-1">—</h3>
+          <p id="result-first" class="font-display italic text-lg mt-2 mb-4"></p>
+          <dl class="grid gap-3 mb-4">
+            <div>
+              <dt class="text-xs tracking-[0.08em] uppercase text-stone-500">Assistant id</dt>
+              <dd id="result-id" class="mt-1 font-mono text-[13px] break-all">—</dd>
+            </div>
+            <div>
+              <dt class="text-xs tracking-[0.08em] uppercase text-stone-500">Missing from the site</dt>
+              <dd id="result-missing" class="mt-1">Nothing listed</dd>
+            </div>
+          </dl>
+          <a id="result-link" href="#" target="_blank" rel="noreferrer" class="inline-block rounded-full bg-ink px-3 py-2 text-[13px] font-bold text-gold">Open in Vapi →</a>
+        </article>
+
+        <article id="idle-card" class="rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">What you get</p>
+          <h3 class="text-xl font-semibold mt-1 mb-2">A talkable demo. Not a booked calendar.</h3>
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li>MiniMax voice and Deepgram Flux, same as Maria</li>
+            <li>Business facts from the site, nothing invented</li>
+            <li>Callback only — no tools, no trial book</li>
+            <li>Test it from the Vapi dashboard</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="how" class="pb-10">
+      <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">How it works</p>
+      <h2 class="font-display tracking-tight text-[clamp(26px,4vw,40px)] mt-1 mb-4">Four steps, one webhook</h2>
+      <div class="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">01</p>
+          <h3 class="font-semibold mt-1 mb-1">You paste a URL</h3>
+          <p>Optional first name. We send that to n8n.</p>
+        </article>
+        <article class="rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">02</p>
+          <h3 class="font-semibold mt-1 mb-1">Jina reads the site</h3>
+          <p>Home, about, contact, services. Phones and emails if they are there.</p>
+        </article>
+        <article class="rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">03</p>
+          <h3 class="font-semibold mt-1 mb-1">OpenAI writes Maria</h3>
+          <p>Nineteen blocks. Copy the talk rules. Fill the business. No tools.</p>
+        </article>
+        <article class="rounded-[20px] border border-ink/10 bg-white/80 p-5">
+          <p class="text-xs font-bold tracking-[0.16em] uppercase text-[#9a4a12]">04</p>
+          <h3 class="font-semibold mt-1 mb-1">Vapi creates it</h3>
+          <p>Same org as the other demos. New prompt. New name.</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="flex flex-col gap-2 sm:flex-row sm:justify-between border-t border-ink/10 py-5 mb-8 text-[13px] text-stone-500">
+      <div>Ayra · demo generator</div>
+      <div>No phone number is assigned. Call from Vapi.</div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

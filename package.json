@@ -1,0 +1,8 @@
+{
+  "name": "ayra-demo-builder",
+  "private": true,
+  "description": "Standalone Ayra demo agent generator",
+  "scripts": {
+    "start": "npx --yes serve -s . -l tcp://0.0.0.0:${PORT:-3000}"
+  }
+}
