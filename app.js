@@ -31,20 +31,9 @@
   function setStep(active) {
     steps.forEach(function (el) {
       var n = Number(el.getAttribute("data-step"));
-      var dot = el.querySelector("span");
-      el.classList.remove("text-neutral-300", "text-neutral-950", "font-medium");
-      if (dot) {
-        dot.className = "h-2.5 w-2.5 rounded-full border border-neutral-300";
-      }
-      if (n < active) {
-        el.classList.add("text-neutral-950");
-        if (dot) dot.className = "h-2.5 w-2.5 rounded-full bg-neutral-950";
-      } else if (n === active) {
-        el.classList.add("text-neutral-950", "font-medium");
-        if (dot) dot.className = "h-2.5 w-2.5 rounded-full bg-neutral-950";
-      } else {
-        el.classList.add("text-neutral-300");
-      }
+      if (n < active) el.setAttribute("data-state", "done");
+      else if (n === active) el.setAttribute("data-state", "on");
+      else el.removeAttribute("data-state");
     });
   }
 
@@ -56,11 +45,11 @@
 
   function setStatus(text, state) {
     statusEl.textContent = text;
-    statusEl.classList.remove("text-neutral-500", "text-neutral-950", "text-emerald-700", "text-rose-700");
-    if (state === "working") statusEl.classList.add("text-neutral-950");
+    statusEl.classList.remove("text-slate-500", "text-ink", "text-ice", "text-emerald-700", "text-rose-700");
+    if (state === "working") statusEl.classList.add("text-ice");
     else if (state === "ok") statusEl.classList.add("text-emerald-700");
     else if (state === "error") statusEl.classList.add("text-rose-700");
-    else statusEl.classList.add("text-neutral-500");
+    else statusEl.classList.add("text-slate-500");
   }
 
   function startProgress() {
