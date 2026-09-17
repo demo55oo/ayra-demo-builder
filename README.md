@@ -1,6 +1,6 @@
 # Ayra demo agent generator
 
-Standalone page. Paste a website URL, n8n scrapes it, OpenAI writes a Maria-style inbound prompt, Vapi creates a no-tools demo assistant.
+White Tailwind landing page. Paste a website URL, n8n scrapes it, OpenAI writes a Maria-style inbound prompt, Vapi creates a no-tools demo assistant and a free number you can tap to call.
 
 This repo is only the frontend. The webhook lives on n8n:
 

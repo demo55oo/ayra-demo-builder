@@ -9,21 +9,95 @@
   var statusEl = document.getElementById("status");
   var result = document.getElementById("result");
   var idle = document.getElementById("idle-card");
+  var working = document.getElementById("working-card");
   var btnLabel = document.getElementById("btn-label");
+  var workTitle = document.getElementById("work-title");
+  var workSub = document.getElementById("work-sub");
+  var steps = document.querySelectorAll("#steps li");
+  var timers = [];
+
+  var PHASES = [
+    { at: 0, step: 0, title: "Reading the site", sub: "Home, about, contact, services." },
+    { at: 9000, step: 1, title: "Writing the inbound prompt", sub: "Same talk rules. New business facts." },
+    { at: 28000, step: 2, title: "Creating the Vapi agent", sub: "MiniMax voice. Deepgram Flux." },
+    { at: 48000, step: 3, title: "Getting a number you can call", sub: "Free Vapi line. Tap it on your phone." }
+  ];
+
+  function clearTimers() {
+    timers.forEach(function (id) { clearTimeout(id); });
+    timers = [];
+  }
+
+  function setStep(active) {
+    steps.forEach(function (el) {
+      var n = Number(el.getAttribute("data-step"));
+      var dot = el.querySelector("span");
+      el.classList.remove("text-neutral-300", "text-neutral-950", "font-medium");
+      if (dot) {
+        dot.className = "h-2.5 w-2.5 rounded-full border border-neutral-300";
+      }
+      if (n < active) {
+        el.classList.add("text-neutral-950");
+        if (dot) dot.className = "h-2.5 w-2.5 rounded-full bg-neutral-950";
+      } else if (n === active) {
+        el.classList.add("text-neutral-950", "font-medium");
+        if (dot) dot.className = "h-2.5 w-2.5 rounded-full bg-neutral-950";
+      } else {
+        el.classList.add("text-neutral-300");
+      }
+    });
+  }
+
+  function setMode(mode) {
+    idle.classList.toggle("hidden", mode !== "idle");
+    working.classList.toggle("hidden", mode !== "working");
+    result.classList.toggle("hidden", mode !== "ready");
+  }
 
   function setStatus(text, state) {
     statusEl.textContent = text;
-    statusEl.dataset.state = state || "";
-    statusEl.classList.remove("text-stone-500", "text-amber-900", "text-emerald-800", "text-rose-800");
-    if (state === "working") statusEl.classList.add("text-amber-900");
-    else if (state === "ok") statusEl.classList.add("text-emerald-800");
-    else if (state === "error") statusEl.classList.add("text-rose-800");
-    else statusEl.classList.add("text-stone-500");
+    statusEl.classList.remove("text-neutral-500", "text-neutral-950", "text-emerald-700", "text-rose-700");
+    if (state === "working") statusEl.classList.add("text-neutral-950");
+    else if (state === "ok") statusEl.classList.add("text-emerald-700");
+    else if (state === "error") statusEl.classList.add("text-rose-700");
+    else statusEl.classList.add("text-neutral-500");
+  }
+
+  function startProgress() {
+    clearTimers();
+    setMode("working");
+    PHASES.forEach(function (phase) {
+      timers.push(setTimeout(function () {
+        workTitle.textContent = phase.title;
+        workSub.textContent = phase.sub;
+        setStep(phase.step);
+        setStatus(phase.title + "…", "working");
+      }, phase.at));
+    });
+  }
+
+  function prettyPhone(raw) {
+    var digits = String(raw || "").replace(/\D/g, "");
+    if (digits.length === 11 && digits.charAt(0) === "1") {
+      return "+1 (" + digits.slice(1, 4) + ") " + digits.slice(4, 7) + "-" + digits.slice(7);
+    }
+    if (digits.length === 10) {
+      return "+1 (" + digits.slice(0, 3) + ") " + digits.slice(3, 6) + "-" + digits.slice(6);
+    }
+    return raw || "";
+  }
+
+  function telHref(raw) {
+    var digits = String(raw || "").replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.charAt(0) !== "1" && digits.length === 10) digits = "1" + digits;
+    return "tel:+" + digits;
   }
 
   function showResult(data) {
-    idle.classList.add("hidden");
-    result.classList.remove("hidden");
+    clearTimers();
+    setStep(3);
+    setMode("ready");
     document.getElementById("result-name").textContent = data.name || "Demo agent";
     document.getElementById("result-first").textContent = data.firstMessage || "";
     document.getElementById("result-id").textContent = data.assistantId || "—";
@@ -33,6 +107,21 @@
       : "Nothing listed";
     var link = document.getElementById("result-link");
     link.href = data.vapiUrl || "https://dashboard.vapi.ai/assistants/" + (data.assistantId || "");
+
+    var raw = data.phoneNumber || data.phone || data.number || "";
+    var href = data.phoneHref || telHref(raw);
+    var label = data.phonePretty || prettyPhone(raw);
+    var phone = document.getElementById("result-phone");
+    var miss = document.getElementById("result-phone-miss");
+    if (href && label) {
+      phone.classList.remove("hidden");
+      miss.classList.add("hidden");
+      phone.href = href;
+      document.getElementById("result-phone-label").textContent = label;
+    } else {
+      phone.classList.add("hidden");
+      miss.classList.remove("hidden");
+    }
   }
 
   function normalizeUrl(raw) {
@@ -72,10 +161,8 @@
     }
 
     button.disabled = true;
-    btnLabel.textContent = "Working…";
-    result.classList.add("hidden");
-    idle.classList.remove("hidden");
-    setStatus("Reading the site, writing the prompt, creating the agent…", "working");
+    btnLabel.textContent = "Building…";
+    startProgress();
 
     var payload = { websiteUrl: websiteUrl, agentName: agentName };
     var lastError = null;
@@ -83,15 +170,19 @@
       try {
         var data = await postWebhook(WEBHOOKS[i], payload);
         showResult(data);
-        setStatus("Done. Open it in Vapi and place a test call.", "ok");
+        setStatus(data.phoneNumber || data.phone
+          ? "Done. Tap the number to call from your phone."
+          : "Done. Agent is ready.", "ok");
         button.disabled = false;
-        btnLabel.textContent = "Create the demo agent";
+        btnLabel.textContent = "Create another demo";
         return;
       } catch (err) {
         lastError = err;
       }
     }
 
+    clearTimers();
+    setMode("idle");
     setStatus(
       lastError && lastError.name === "AbortError"
         ? "That took too long. Try again, or check the site loads."
