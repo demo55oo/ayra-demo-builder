@@ -89,13 +89,6 @@
     setMode("ready");
     document.getElementById("result-name").textContent = data.name || "Demo agent";
     document.getElementById("result-first").textContent = data.firstMessage || "";
-    document.getElementById("result-id").textContent = data.assistantId || "—";
-    var missing = data.missingFields || [];
-    document.getElementById("result-missing").textContent = missing.length
-      ? missing.join(", ")
-      : "Nothing listed";
-    var link = document.getElementById("result-link");
-    link.href = data.vapiUrl || "https://dashboard.vapi.ai/assistants/" + (data.assistantId || "");
 
     var raw = data.phoneNumber || data.phone || data.number || "";
     var href = data.phoneHref || telHref(raw);
